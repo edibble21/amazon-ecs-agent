@@ -56,6 +56,7 @@ import (
 	"github.com/aws/amazon-ecs-agent/agent/utils/mobypkgwrapper"
 	"github.com/aws/amazon-ecs-agent/agent/utils/retry"
 	"github.com/aws/amazon-ecs-agent/agent/version"
+	"github.com/aws/amazon-ecs-agent/agent/gpuInit"
 	"github.com/aws/aws-sdk-go/aws"
 	aws_credentials "github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/cihub/seelog"
@@ -127,6 +128,7 @@ type ecsAgent struct {
 	resourceFields              *taskresource.ResourceFields
 	availabilityZone            string
 	latestSeqNumberTaskManifest *int64
+	nvidiaGPUManager            gpuInit.GPUManager
 }
 
 // newAgent returns a new ecsAgent object, but does not start anything
@@ -267,7 +269,8 @@ func (agent *ecsAgent) doStart(containerChangeEventStream *eventstream.EventStre
 		}
 	}
 	if agent.cfg.GPUSupportEnabled {
-		err := agent.initializeGPUManager()
+	//	err := agent.initializeGPUManager()
+		err := agent.nvidiaGPUManager.Setup()
 		if err != nil {
 			seelog.Criticalf("Could not initialize Nvidia GPU Manager: %v", err)
 			return exitcodes.ExitError
